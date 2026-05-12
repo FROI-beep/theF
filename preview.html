@@ -1271,7 +1271,8 @@
     // Si ya entró antes, salta la contraseña directo
     if (sessionStorage.getItem('froi_auth')) {
       screen.classList.add('hidden');
-      document.body.style.overflow = '';
+    } else {
+      document.body.style.overflow = 'hidden';
     }
 
     function tryEnter() {
@@ -1294,9 +1295,6 @@
 
     submit.addEventListener('click', tryEnter);
     input.addEventListener('keydown', e => { if (e.key === 'Enter') tryEnter(); });
-
-    // Bloquea scroll mientras está la pantalla de contraseña
-    document.body.style.overflow = 'hidden';
   })();
 
   // ===== LIGHTNING =====
