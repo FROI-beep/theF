@@ -1,0 +1,51 @@
+<div class="collection-header">
+  <h1>{{ collection.title }}</h1>
+  {%- if collection.description != blank -%}
+    <p>{{ collection.description }}</p>
+  {%- endif -%}
+</div>
+
+{%- assign products_per_page = section.settings.products_per_page -%}
+
+{%- paginate collection.products by products_per_page -%}
+  {%- if collection.products.size > 0 -%}
+    <div class="product-grid">
+      {%- for product in collection.products -%}
+        {%- render 'product-card', product: product, lazy_load: forloop.index > 4 -%}
+      {%- endfor -%}
+    </div>
+
+    {%- if paginate.pages > 1 -%}
+      <div style="display:flex;justify-content:center;gap:1rem;padding:2rem;position:relative;z-index:1;">
+        {%- if paginate.previous -%}
+          <a href="{{ paginate.previous.url }}" style="color:#fff;text-decoration:none;font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;border:1px solid rgba(255,255,255,0.2);padding:0.6rem 1.5rem;">← Prev</a>
+        {%- endif -%}
+        {%- if paginate.next -%}
+          <a href="{{ paginate.next.url }}" style="color:#fff;text-decoration:none;font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;border:1px solid rgba(255,255,255,0.2);padding:0.6rem 1.5rem;">Next →</a>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+  {%- else -%}
+    <div style="text-align:center;padding:6rem 2rem;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase;font-size:0.85rem;position:relative;z-index:1;">
+      No products found.
+    </div>
+  {%- endif -%}
+{%- endpaginate -%}
+
+{% schema %}
+{
+  "name": "Collection Products",
+  "settings": [
+    {
+      "type": "range",
+      "id": "products_per_page",
+      "label": "Products per page",
+      "min": 8,
+      "max": 48,
+      "step": 4,
+      "default": 16
+    }
+  ]
+}
+{% endschema %}

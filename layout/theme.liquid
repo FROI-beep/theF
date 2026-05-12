@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="{{ request.locale.iso_code }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>
+    {%- if page_title == blank -%}
+      {{ shop.name }}
+    {%- else -%}
+      {{ page_title }} — {{ shop.name }}
+    {%- endif -%}
+  </title>
+  <meta name="description" content="{{ page_description | escape }}">
+
+  {{ content_for_header }}
+
+  {{ 'theme.css' | asset_url | stylesheet_tag }}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<canvas id="starfield" aria-hidden="true"></canvas>
+
+<div class="page-wrapper">
+  {% section 'header' %}
+
+  <main id="main-content">
+    {{ content_for_layout }}
+  </main>
+
+  {% section 'footer' %}
+</div>
+
+<!-- Cart Drawer -->
+<div id="cart-drawer" class="cart-drawer" aria-label="Cart" role="dialog">
+  <div class="cart-drawer__header">
+    <h2>Your Cart</h2>
+    <button id="cart-close" class="cart-drawer__close" aria-label="Close cart">&#x2715;</button>
+  </div>
+  <div class="cart-drawer__body" id="cart-items">
+    <p class="cart-empty">Your cart is empty.</p>
+  </div>
+  <div class="cart-drawer__footer">
+    <a href="/checkout" class="btn-checkout">Checkout</a>
+  </div>
+</div>
+
+<div id="overlay" class="overlay"></div>
+
+<script src="{{ 'theme.js' | asset_url }}" defer></script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<header class="site-header">
+  <div class="header-welcome">Welcome to FROI</div>
+
+  <div class="header-inner">
+    <!-- Nav Left -->
+    <nav aria-label="Main navigation">
+      <ul class="header-nav">
+        <li><a href="/collections/all">Shop</a></li>
+        <li><a href="/pages/contact">Contact</a></li>
+        <li><a href="/pages/lookbook">Lookbook</a></li>
+      </ul>
+    </nav>
+
+    <!-- Logo Center -->
+    <a href="/" class="header-logo" aria-label="{{ shop.name }}">
+      <svg class="logo-icon" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="22" cy="22" r="20" stroke="#ff2d2d" stroke-width="1.5"/>
+        <circle cx="22" cy="22" r="3" fill="#ff2d2d"/>
+        <line x1="22" y1="2" x2="22" y2="10" stroke="#ff2d2d" stroke-width="1.5"/>
+        <line x1="22" y1="34" x2="22" y2="42" stroke="#ff2d2d" stroke-width="1.5"/>
+        <line x1="2" y1="22" x2="10" y2="22" stroke="#ff2d2d" stroke-width="1.5"/>
+        <line x1="34" y1="22" x2="42" y2="22" stroke="#ff2d2d" stroke-width="1.5"/>
+      </svg>
+      <span class="logo-datetime"></span>
+    </a>
+
+    <!-- Actions Right -->
+    <div class="header-actions">
+      <a href="/search" aria-label="Search">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="7"/><path d="m16.5 16.5 4 4"/>
+        </svg>
+      </a>
+      <a href="/account" aria-label="Account">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <circle cx="12" cy="7" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+        </svg>
+      </a>
+      <button data-open-cart aria-label="Open cart" style="position:relative">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+        </svg>
+        {%- if cart.item_count > 0 -%}
+          <span class="cart-count">{{ cart.item_count }}</span>
+        {%- endif -%}
+      </button>
+    </div>
+  </div>
+</header>
+
+{% schema %}
+{
+  "name": "Header",
+  "settings": []
+}
+{% endschema %}

@@ -1,0 +1,21 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "FROI",
+    "theme_version": "1.0.0",
+    "theme_author": "FROI",
+    "theme_documentation_url": "",
+    "theme_support_url": ""
+  },
+  {
+    "name": "Colors",
+    "settings": [
+      {
+        "type": "color",
+        "id": "accent_color",
+        "label": "Accent color",
+        "default": "#ff2d2d"
+      }
+    ]
+  }
+]
