@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FROI — Collection</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #000000;
+      --text: #ffffff;
+      --text-muted: #888;
+      --accent: #ffffff;
+      --font: 'Inter', -apple-system, sans-serif;
+    }
+
+    html { font-size: 16px; scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    #starfield {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    #lightning-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 9999;
+      pointer-events: none;
+    }
+
+    .page-wrapper { position: relative; z-index: 2; }
+
+    /* ===== HEADER ===== */
+    .site-header {
+      position: -webkit-sticky;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 0 2rem;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .header-welcome {
+      text-align: center;
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 6px 0 4px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .header-inner {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      padding: 1rem 0;
+    }
+
+    .header-nav { display: flex; gap: 2rem; list-style: none; }
+
+    .header-nav a {
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .header-nav a:hover { color: var(--text-muted); }
+
+    .header-logo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      text-decoration: none;
+    }
+
+    .logo-icon { width: 140px; height: 140px; object-fit: contain; }
+
+    .logo-datetime {
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .header-actions {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    .header-actions a,
+    .header-actions button {
+      background: none;
+      border: none;
+      color: var(--text);
+      cursor: pointer;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      transition: opacity 0.2s;
+      position: relative;
+    }
+    .header-actions a:hover,
+    .header-actions button:hover { opacity: 0.6; }
+
+    /* ===== COLLECTION ===== */
+    .collection-header {
+      text-align: center;
+      padding: 4rem 2rem 2.5rem;
+    }
+
+    .collection-header h1 {
+      font-size: clamp(1.5rem, 4vw, 3rem);
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .collection-header p {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+      letter-spacing: 0.05em;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem 1.5rem;
+      padding: 1rem 2.5rem 4rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* ===== PRODUCT CARD ===== */
+    .product-card {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+    .product-card:hover { transform: translateY(-6px); }
+
+    .product-card__image-wrap {
+      position: relative;
+      aspect-ratio: 1 / 1;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 4px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .product-card__image-wrap::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, rgba(255,255,255,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .product-card__img-placeholder {
+      width: 70%;
+      height: 70%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255,255,255,0.12);
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      border: 1px dashed rgba(255,255,255,0.08);
+      border-radius: 2px;
+      transition: filter 0.4s ease;
+    }
+
+    .product-card:hover .product-card__img-placeholder {
+      filter: drop-shadow(0 0 30px rgba(255,255,255,0.15));
+    }
+
+    /* SVG clothing icons */
+    .product-card__icon {
+      width: 65%;
+      height: 65%;
+      object-fit: contain;
+      filter: drop-shadow(0 0 20px rgba(255,255,255,0.1));
+      transition: transform 0.4s ease, filter 0.4s ease;
+    }
+    .product-card:hover .product-card__icon {
+      transform: scale(1.05) translateY(-4px);
+      filter: drop-shadow(0 0 40px rgba(255,255,255,0.2));
+    }
+
+    .product-card__badge {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      backdrop-filter: blur(8px);
+      color: var(--text-muted);
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 100px;
+    }
+
+    .product-card__badge--new {
+      background: rgba(255,255,255,0.1);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .product-card__info { padding: 0 0.25rem; }
+
+    .product-card__title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--text);
+      text-decoration: none;
+      display: block;
+    }
+
+    .product-card__price {
+      margin-top: 0.3rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+
+    .product-card__price s { color: rgba(255,255,255,0.25); margin-right: 6px; }
+    .product-card__price .sale { color: var(--accent); font-weight: 700; }
+
+    /* ===== PASSWORD SCREEN ===== */
+    .password-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 9998;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      transition: opacity 0.8s ease, visibility 0.8s ease;
+    }
+
+    .password-screen.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .ps-logo-wrap {
+      perspective: 700px;
+      margin-bottom: 1.25rem;
+    }
+
+    .ps-logo {
+      width: 200px;
+      height: 200px;
+      object-fit: contain;
+      display: block;
+      animation: coin-spin 12s linear infinite;
+      transform-origin: center;
+    }
+
+    @keyframes coin-spin {
+      0%   { transform: rotateY(0deg); }
+      100% { transform: rotateY(-360deg); }
+    }
+
+    .ps-clock {
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 0.15em;
+      font-variant-numeric: tabular-nums;
+      margin-bottom: 3.5rem;
+    }
+
+    .ps-nav {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.25rem;
+      margin-bottom: 3.5rem;
+      list-style: none;
+    }
+
+    .ps-nav a {
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: #fff;
+      text-decoration: none;
+      text-shadow: 0 0 20px rgba(255,255,255,0.35);
+      transition: text-shadow 0.2s, color 0.2s;
+    }
+
+    .ps-nav a:hover {
+      color: rgba(255,255,255,0.6);
+      text-shadow: 0 0 8px rgba(255,255,255,0.1);
+    }
+
+    .ps-socials {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .ps-socials a {
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      transition: color 0.2s;
+      display: flex;
+    }
+
+    .ps-socials a:hover { color: #fff; }
+
+    .ps-form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .ps-input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .ps-input {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: #fff;
+      font-family: var(--font);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.25em;
+      text-align: center;
+      text-transform: uppercase;
+      padding: 0.75rem 3rem 0.75rem 1.5rem;
+      width: 220px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .ps-input::placeholder {
+      color: rgba(255,255,255,0.25);
+      letter-spacing: 0.2em;
+    }
+
+    .ps-input:focus { border-color: rgba(255,255,255,0.4); }
+
+    .ps-input.error { border-color: var(--accent); animation: shake 0.35s ease; }
+
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      20%      { transform: translateX(-6px); }
+      40%      { transform: translateX(6px); }
+      60%      { transform: translateX(-4px); }
+      80%      { transform: translateX(4px); }
+    }
+
+    .ps-submit {
+      position: absolute;
+      right: 0.75rem;
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.4);
+      cursor: pointer;
+      padding: 0;
+      display: flex;
+      transition: color 0.2s;
+    }
+
+    .ps-submit:hover { color: #fff; }
+
+    .ps-error {
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+      opacity: 0;
+      transition: opacity 0.2s;
+      height: 1em;
+    }
+
+    .ps-error.show { opacity: 1; }
+
+    .ps-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.5);
+      box-shadow: 0 0 12px 4px rgba(255,255,255,0.25);
+      margin-top: 1.5rem;
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%,100% { opacity: 0.4; transform: scale(1); }
+      50%      { opacity: 1; transform: scale(1.3); }
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      position: relative;
+      width: 100%;
+      height: 92vh;
+      min-height: 560px;
+      overflow: hidden;
+      display: flex;
+      align-items: flex-end;
+    }
+
+    .hero__bg {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.55) 60%, rgba(0,0,0,0.92) 100%),
+        linear-gradient(to right, rgba(0,0,0,0.3) 0%, transparent 40%, transparent 60%, rgba(0,0,0,0.3) 100%);
+      z-index: 1;
+    }
+
+    /* Swaps to real photo — put your image URL here */
+    .hero__photo {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      filter: grayscale(15%) contrast(1.05);
+    }
+
+    /* Placeholder shown when there's no photo */
+    .hero__placeholder {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(160deg, #0a0a0a 0%, #111 40%, #0d0d0d 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hero__placeholder-text {
+      color: rgba(255,255,255,0.06);
+      font-size: clamp(4rem, 14vw, 14rem);
+      font-weight: 900;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      user-select: none;
+    }
+
+    .hero__content {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      text-align: center;
+      padding: 0 2rem 5rem;
+    }
+
+    .hero__eyebrow {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+    }
+
+    .hero__title {
+      font-size: clamp(2.5rem, 7vw, 6.5rem);
+      font-weight: 900;
+      letter-spacing: -0.01em;
+      line-height: 1;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    .hero__subtitle {
+      font-size: 1rem;
+      color: rgba(255,255,255,0.6);
+      letter-spacing: 0.05em;
+      margin-bottom: 2rem;
+    }
+
+    .hero__cta {
+      display: inline-block;
+      padding: 0.85rem 2.5rem;
+      background: #fff;
+      color: #000;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .hero__cta:hover {
+      background: rgba(255,255,255,0.85);
+      color: #000;
+    }
+
+    /* ===== TICKER ===== */
+    .ticker {
+      position: relative;
+      z-index: 2;
+      overflow: hidden;
+      background: rgba(0,0,0,0.0);
+      border-top: 1px solid rgba(255,255,255,0.08);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 0.65rem 0;
+    }
+
+    .ticker__track {
+      display: flex;
+      gap: 0;
+      white-space: nowrap;
+      animation: ticker-scroll 18s linear infinite;
+    }
+
+    .ticker__item {
+      display: inline-flex;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 0 1.5rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.7);
+      flex-shrink: 0;
+    }
+
+    .ticker__dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.4);
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    @keyframes ticker-scroll {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* ===== FOOTER ===== */
+    .site-footer {
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding: 3rem 2.5rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .footer-brand .logo-text {
+      font-size: 1.5rem;
+      font-weight: 900;
+      letter-spacing: 0.2em;
+    }
+
+    .footer-brand p {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      margin-top: 0.5rem;
+      line-height: 1.6;
+    }
+
+    .footer-links h4 {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    .footer-links ul { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+
+    .footer-links a {
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--text-muted); }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,0.05);
+      padding: 1.5rem 2.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .footer-bottom p {
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+    }
+
+    /* ===== CART DRAWER ===== */
+    .cart-drawer {
+      position: fixed;
+      top: 0; right: 0;
+      width: 360px;
+      height: 100vh;
+      background: rgba(8,8,8,0.97);
+      border-left: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(20px);
+      z-index: 999;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    .cart-drawer.open { transform: translateX(0); }
+
+    .cart-drawer__header {
+      padding: 1.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .cart-drawer__header h2 {
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .cart-drawer__close {
+      background: none;
+      border: none;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 1.25rem;
+      line-height: 1;
+    }
+
+    .cart-drawer__body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+    }
+
+    .cart-empty {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-top: 3rem;
+      letter-spacing: 0.05em;
+    }
+
+    .cart-drawer__footer {
+      padding: 1.5rem;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .btn-checkout {
+      display: block;
+      width: 100%;
+      padding: 1rem;
+      background: #fff;
+      color: #000;
+      border: none;
+      font-size: 0.8rem;
+      font-weight: 800;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      cursor: pointer;
+      text-align: center;
+      transition: opacity 0.2s;
+    }
+    .btn-checkout:hover { opacity: 0.85; }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 998;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .overlay.active { opacity: 1; pointer-events: all; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 1024px) {
+      .product-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .header-nav { display: none; }
+      .header-inner {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        padding: 0.75rem 0;
+      }
+      .header-actions {
+        position: absolute;
+        right: 0;
+      }
+      .product-grid { grid-template-columns: repeat(2, 1fr); padding: 1rem 1rem 3rem; gap: 1rem; }
+      .site-footer { grid-template-columns: 1fr; }
+      .cart-drawer { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="lightning-canvas" aria-hidden="true"></canvas>
+
+<!-- PASSWORD SCREEN -->
+<div class="password-screen" id="ps">
+
+  <!-- Contenido (sobre el canvas de rayos) -->
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;">
+
+  <!-- Logo girando -->
+  <div class="ps-logo-wrap">
+    <img class="ps-logo" src="logo.png" alt="FROI">
+  </div>
+
+  <!-- Reloj -->
+  <div class="ps-clock" id="ps-clock"></div>
+
+  <!-- Contraseña -->
+  <div class="ps-form">
+    <div class="ps-input-wrap">
+      <input
+        class="ps-input"
+        id="ps-input"
+        type="password"
+        placeholder="Password"
+        autocomplete="off"
+        spellcheck="false"
+      >
+      <button class="ps-submit" id="ps-submit" aria-label="Enter">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </button>
+    </div>
+    <div class="ps-error" id="ps-error">Incorrect password</div>
+  </div>
+
+  </div><!-- end contenido z-index:2 -->
+
+  <!-- Redes sociales abajo -->
+  <div class="ps-socials" style="position:absolute; bottom: 2.5rem; z-index:2;">
+    <a href="https://instagram.com/thefroicuts" target="_blank" aria-label="Instagram">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="2" y="2" width="20" height="20" rx="5"/>
+        <circle cx="12" cy="12" r="5"/>
+        <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+      </svg>
+    </a>
+    <a href="https://tiktok.com/@thefroicuts" target="_blank" aria-label="TikTok">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/>
+      </svg>
+    </a>
+  </div>
+</div>
+
+<div class="page-wrapper">
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="header-inner">
+      <nav>
+        <ul class="header-nav">
+          <li><a href="#">Shop</a></li>
+          <li><a href="#">Contact</a></li>
+          <li><a href="#">Lookbook</a></li>
+        </ul>
+      </nav>
+
+      <a href="#" class="header-logo">
+        <img class="logo-icon" src="logo.png" alt="FROI">
+        <span class="logo-datetime" id="clock"></span>
+      </a>
+
+      <div class="header-actions">
+        <a href="#" aria-label="Search">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="7"/><path d="m16.5 16.5 4 4"/>
+          </svg>
+        </a>
+        <a href="#" aria-label="Account">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <circle cx="12" cy="7" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+          </svg>
+        </a>
+        <button id="cart-open" aria-label="Open cart">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <!-- Ticker fijo dentro del header -->
+    <div class="ticker" style="border-top:1px solid rgba(255,255,255,0.06);border-bottom:none;" aria-hidden="true">
+      <div class="ticker__track">
+        <span class="ticker__item">New Drop Today <span class="ticker__dot"></span></span>
+        <span class="ticker__item">New Drop Today <span class="ticker__dot"></span></span>
+        <span class="ticker__item">New Drop Today <span class="ticker__dot"></span></span>
+        <span class="ticker__item">New Drop Today <span class="ticker__dot"></span></span>
+        <span class="ticker__item">New Drop Today <span class="ticker__dot"></span></span>
+        <span class="ticker__item">New Drop Today <span class="ticker__dot"></span></span>
+        <span class="ticker__item">New Drop Today <span class="ticker__dot"></span></span>
+        <span class="ticker__item">New Drop Today <span class="ticker__dot"></span></span>
+        <span class="ticker__item">New Drop Today <span class="ticker__dot"></span></span>
+        <span class="ticker__item">New Drop Today <span class="ticker__dot"></span></span>
+        <span class="ticker__item">New Drop Today <span class="ticker__dot"></span></span>
+        <span class="ticker__item">New Drop Today <span class="ticker__dot"></span></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main>
+
+    <!-- HERO -->
+    <section class="hero">
+      <!-- Placeholder visual (reemplaza con tu foto real) -->
+      <div class="hero__placeholder">
+        <span class="hero__placeholder-text">FROI</span>
+      </div>
+      <!--
+        Cuando tengas tu foto, descomenta esta línea y borra el placeholder de arriba:
+        <img class="hero__photo" src="TU-FOTO.jpg" alt="FROI New Collection">
+      -->
+      <div class="hero__bg"></div>
+      <div class="hero__content">
+        <p class="hero__eyebrow">NYC — 2026</p>
+        <h1 class="hero__title">New Drop</h1>
+        <p class="hero__subtitle">Fresh cuts. Fresh fits. Built in New York.</p>
+        <a href="#collection" class="hero__cta">Shop Now</a>
+      </div>
+    </section>
+
+    </section>
+
+    <div id="collection">
+    <div class="collection-header">
+      <h1>All Products</h1>
+      <p>NYC. Independent. Streetwear built different.</p>
+    </div>
+
+    <div class="product-grid" style="grid-template-columns: repeat(1, minmax(0, 320px)); justify-content: center;">
+
+      <!-- Card 1 — placeholder para tu producto real -->
+      <div class="product-card">
+        <div class="product-card__image-wrap">
+          <svg class="product-card__icon" viewBox="0 0 120 120" fill="none">
+            <rect x="25" y="35" width="70" height="65" rx="3" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+            <path d="M25 35 C25 35 10 28 8 20 L30 15 C32 22 38 28 45 30 L45 35" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+            <path d="M95 35 C95 35 110 28 112 20 L90 15 C88 22 82 28 75 30 L75 35" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+            <path d="M45 30 Q60 38 75 30" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+          </svg>
+        </div>
+        <div class="product-card__info">
+          <span class="product-card__title">Coming Soon</span>
+          <div class="product-card__price">— USD</div>
+        </div>
+      </div>
+
+      <!-- Cards eliminadas — agregar productos reales aquí -->
+      <!-- Card 6 BORRADO
+        <div class="product-card">
+        <div class="product-card__image-wrap">
+          <svg class="product-card__icon" viewBox="0 0 120 120" fill="none">
+            <path d="M28 42 L20 28 L42 20 Q60 34 78 20 L100 28 L92 42 L80 36 L80 95 L40 95 L40 36 Z" fill="rgba(20,20,20,0.8)" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+            <path d="M42 55 Q60 62 78 55" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+            <ellipse cx="60" cy="32" rx="18" ry="6" fill="rgba(0,0,0,0.5)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+          </svg>
+        </div>
+        <div class="product-card__info">
+          <span class="product-card__title">Black Puffer</span>
+          <div class="product-card__price">$75.00 USD</div>
+        </div>
+      </div>
+
+      <!-- Card 7 -->
+      <div class="product-card">
+    </div>
+    </div><!-- end #collection -->
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-brand">
+      <div class="logo-text">FROI</div>
+      <p>NYC. Independent.<br>Streetwear built different.</p>
+    </div>
+    <div class="footer-links">
+      <h4>Navigate</h4>
+      <ul>
+        <li><a href="#">Shop</a></li>
+        <li><a href="#">Lookbook</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-links">
+      <h4>Info</h4>
+      <ul>
+        <li><a href="#">Shipping</a></li>
+        <li><a href="#">Returns</a></li>
+        <li><a href="#">Privacy</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <div class="footer-bottom">
+    <p>&copy; 2026 FROI. All rights reserved.</p>
+    <p style="font-size:0.65rem;letter-spacing:0.15em;color:rgba(255,255,255,0.3);">NYC</p>
+  </div>
+
+</div>
+
+<!-- Cart Drawer -->
+<div id="cart-drawer" class="cart-drawer">
+  <div class="cart-drawer__header">
+    <h2>Your Cart</h2>
+    <button id="cart-close" class="cart-drawer__close">&#x2715;</button>
+  </div>
+  <div class="cart-drawer__body">
+    <p class="cart-empty">Your cart is empty.</p>
+  </div>
+  <div class="cart-drawer__footer">
+    <button class="btn-checkout">Checkout</button>
+  </div>
+</div>
+
+<div id="overlay" class="overlay"></div>
+
+<script>
+  // ===== CONTRASEÑA =====
+  // Cambia "FROI2026" por la contraseña que quieras
+  const PASSWORD = '3730';
+
+  (function () {
+    const screen  = document.getElementById('ps');
+    const input   = document.getElementById('ps-input');
+    const submit  = document.getElementById('ps-submit');
+    const errEl   = document.getElementById('ps-error');
+    const psClock = document.getElementById('ps-clock');
+
+    // Reloj pantalla de acceso
+    function tickPs() {
+      const d = new Date();
+      const mm  = String(d.getMonth() + 1).padStart(2, '0');
+      const dd  = String(d.getDate()).padStart(2, '0');
+      const yy  = d.getFullYear();
+      const hh  = String(d.getHours()).padStart(2, '0');
+      const min = String(d.getMinutes()).padStart(2, '0');
+      const ampm = d.getHours() >= 12 ? 'PM' : 'AM';
+      psClock.textContent = `${mm}/${dd}/${yy} ${hh}:${min} ${ampm}`;
+    }
+    tickPs();
+    setInterval(tickPs, 10000);
+
+    function tryEnter() {
+      if (input.value === PASSWORD || input.value.toUpperCase() === PASSWORD) {
+        window.strikeAndEnter(() => {
+          screen.classList.add('hidden');
+          document.body.style.overflow = '';
+        });
+      } else {
+        errEl.classList.add('show');
+        input.classList.add('error');
+        input.value = '';
+        setTimeout(() => {
+          input.classList.remove('error');
+          errEl.classList.remove('show');
+        }, 1800);
+      }
+    }
+
+    submit.addEventListener('click', tryEnter);
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') tryEnter(); });
+
+    // Bloquea scroll mientras está la pantalla de contraseña
+    document.body.style.overflow = 'hidden';
+  })();
+
+  // ===== LIGHTNING =====
+  (function () {
+    const ps     = document.getElementById('ps');
+    const canvas = document.getElementById('lightning-canvas');
+    const ctx    = canvas.getContext('2d');
+    let W, H, bolts = [];
+
+    function resize() {
+      W = canvas.width  = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+
+    // Genera un camino de rayo por desplazamiento de punto medio
+    function mkPath(x1, y1, x2, y2, spread, depth) {
+      if (depth === 0) return [{x:x1,y:y1},{x:x2,y:y2}];
+      const mx = (x1+x2)/2 + (Math.random()-.5)*spread;
+      const my = (y1+y2)/2 + (Math.random()-.5)*spread*.4;
+      return [...mkPath(x1,y1,mx,my,spread*.55,depth-1),
+              ...mkPath(mx,my,x2,y2,spread*.55,depth-1)];
+    }
+
+    class Bolt {
+      constructor(x1,y1,x2,y2,opts={}) {
+        this.pts  = mkPath(x1,y1,x2,y2, opts.spread||120, opts.depth||7);
+        this.life = opts.life || 350;
+        this.born = performance.now();
+        this.maxA = opts.alpha || 0.7;
+        this.w    = opts.width || 1.5;
+        this.kids = [];
+        if (opts.branch !== false) {
+          const n = Math.floor(Math.random()*3)+1;
+          for (let i=0;i<n;i++) {
+            const idx = Math.floor(Math.random()*this.pts.length*.5 + this.pts.length*.15);
+            const p   = this.pts[idx];
+            if (!p) continue;
+            this.kids.push(new Bolt(p.x,p.y,
+              p.x+(Math.random()-.5)*160, p.y+Math.random()*160,
+              {spread:50,depth:4,alpha:this.maxA*.45,life:this.life*.65,width:this.w*.5,branch:false}
+            ));
+          }
+        }
+      }
+      draw(ctx,now) {
+        const t = (now-this.born)/this.life;
+        if (t>=1) return false;
+        const a = t<.08 ? (t/.08)*this.maxA : this.maxA*(1-(t-.08)/.92);
+        ctx.save();
+        // glow
+        ctx.globalAlpha = a*.25;
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth   = this.w*4;
+        ctx.shadowBlur  = 30;
+        ctx.shadowColor = 'rgba(200,220,255,.9)';
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        this.pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));
+        ctx.stroke();
+        // core
+        ctx.globalAlpha = a;
+        ctx.lineWidth   = this.w;
+        ctx.shadowBlur  = 12;
+        ctx.beginPath();
+        this.pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));
+        ctx.stroke();
+        ctx.restore();
+        this.kids = this.kids.filter(k=>k.draw(ctx,now));
+        return true;
+      }
+    }
+
+    function spawnBg() {
+      const onPassword = !ps.classList.contains('hidden');
+      const count = onPassword ? Math.floor(Math.random()*2)+1 : 1;
+      for (let i=0;i<count;i++) {
+        const x = Math.random()*W;
+        bolts.push(new Bolt(
+          x, -5,
+          x+(Math.random()-.5)*W*.9, H+5,
+          onPassword
+            ? {spread:500,depth:8,alpha:.5+Math.random()*.4,life:300+Math.random()*200,width:1+Math.random()*2}
+            : {spread:500,depth:8,alpha:.15+Math.random()*.15,life:300+Math.random()*200,width:.8+Math.random()}
+        ));
+      }
+    }
+
+    function schedule() {
+      const onPassword = !ps.classList.contains('hidden');
+      const delay = onPassword ? 600+Math.random()*1400 : 2500+Math.random()*3500;
+      setTimeout(()=>{ spawnBg(); schedule(); }, delay);
+    }
+
+    // Rayo dramático al logo + transición
+    window.strikeAndEnter = function(cb) {
+      const logoEl  = document.querySelector('.ps-logo');
+      const pr      = ps.getBoundingClientRect();
+      const lr      = logoEl.getBoundingClientRect();
+      const lx      = lr.left-pr.left+lr.width/2;
+      const ly      = lr.top -pr.top +lr.height/2;
+
+      // 3 rayos en cascada
+      [0,80,160].forEach((delay,i)=>{
+        setTimeout(()=>{
+          bolts.push(new Bolt(lx+(Math.random()-.5)*300,-10, lx, ly,
+            {spread:200,depth:8,alpha:1,life:600,width:3-i*.5}));
+        }, delay);
+      });
+
+      // Flash blanco
+      setTimeout(()=>{
+        const fl = document.createElement('div');
+        fl.style.cssText = 'position:absolute;inset:0;background:#fff;z-index:999;pointer-events:none;transition:opacity .5s ease;';
+        ps.appendChild(fl);
+        requestAnimationFrame(()=>requestAnimationFrame(()=>{ fl.style.opacity='0'; }));
+        setTimeout(()=>{ fl.remove(); cb && cb(); }, 520);
+      }, 200);
+    };
+
+    // Loop
+    function loop() {
+      const now = performance.now();
+      ctx.clearRect(0,0,W,H);
+      bolts = bolts.filter(b=>b.draw(ctx,now));
+      requestAnimationFrame(loop);
+    }
+
+    window.addEventListener('resize', resize);
+    resize(); loop(); schedule();
+  })();
+
+
+  // CLOCK
+  (function () {
+    const el = document.getElementById('clock');
+    function tick() {
+      const d = new Date();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      const yy = d.getFullYear();
+      const hh = String(d.getHours()).padStart(2, '0');
+      const min = String(d.getMinutes()).padStart(2, '0');
+      el.textContent = `${mm}/${dd}/${yy} ${hh}:${min}`;
+    }
+    tick();
+    setInterval(tick, 60000);
+  })();
+
+  // CART
+  (function () {
+    const drawer = document.getElementById('cart-drawer');
+    const overlay = document.getElementById('overlay');
+    const open = document.getElementById('cart-open');
+    const close = document.getElementById('cart-close');
+
+    open.addEventListener('click', () => {
+      drawer.classList.add('open');
+      overlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    });
+
+    function closeCart() {
+      drawer.classList.remove('open');
+      overlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    close.addEventListener('click', closeCart);
+    overlay.addEventListener('click', closeCart);
+  })();
+</script>
+</body>
+</html>
