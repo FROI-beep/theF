@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hoodie — FROI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #000;
+      --text: #fff;
+      --text-muted: #888;
+      --font: 'Inter', -apple-system, sans-serif;
+    }
+
+    html { font-size: 16px; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    #lightning-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .page-wrapper { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* HEADER */
+    .site-header {
+      position: -webkit-sticky;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 0 2rem;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(12px);
+    }
+
+    .header-inner {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      padding: 1rem 0;
+    }
+
+    .header-nav { display: flex; gap: 2rem; list-style: none; }
+
+    .header-nav a {
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .header-nav a:hover { color: var(--text-muted); }
+
+    .header-logo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+    }
+
+    .logo-icon { width: 140px; height: 140px; object-fit: contain; }
+
+    .header-actions {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    .header-actions a,
+    .header-actions button {
+      background: none;
+      border: none;
+      color: var(--text);
+      cursor: pointer;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .header-actions a:hover,
+    .header-actions button:hover { opacity: 0.6; }
+
+    /* PRODUCT PAGE */
+    .product-page {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: calc(100vh - 180px);
+    }
+
+    /* IMAGE SIDE */
+    .product-image-side {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem;
+      border-right: 1px solid rgba(255,255,255,0.06);
+      position: relative;
+    }
+
+    .product-image-side::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, rgba(255,255,255,0.03) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .product-img {
+      width: 100%;
+      max-width: 480px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 60px rgba(255,255,255,0.08));
+    }
+
+    .product-img-placeholder {
+      width: 80%;
+      aspect-ratio: 1;
+      border: 1px dashed rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255,255,255,0.15);
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    /* INFO SIDE */
+    .product-info-side {
+      padding: 3rem 2.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 1.5rem;
+    }
+
+    .product-sku {
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      color: rgba(255,255,255,0.3);
+      text-transform: uppercase;
+    }
+
+    .product-title {
+      font-size: clamp(2.5rem, 5vw, 4.5rem);
+      font-weight: 900;
+      letter-spacing: -0.01em;
+      line-height: 1;
+    }
+
+    .product-price {
+      font-size: 1.1rem;
+      color: rgba(255,255,255,0.65);
+      letter-spacing: 0.05em;
+    }
+
+    .product-divider {
+      border: none;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .qty-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 0.75rem;
+    }
+
+    .qty-wrap {
+      display: flex;
+      align-items: center;
+      border: 1px solid rgba(255,255,255,0.2);
+      width: fit-content;
+    }
+
+    .qty-btn {
+      background: none;
+      border: none;
+      color: #fff;
+      width: 48px;
+      height: 48px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .qty-btn:hover { background: rgba(255,255,255,0.08); }
+
+    .qty-num {
+      width: 48px;
+      height: 48px;
+      text-align: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      border-left: 1px solid rgba(255,255,255,0.2);
+      border-right: 1px solid rgba(255,255,255,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-add-cart {
+      width: 100%;
+      padding: 1.1rem;
+      background: #fff;
+      color: #000;
+      border: none;
+      font-size: 0.75rem;
+      font-weight: 900;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .btn-add-cart:hover { opacity: 0.85; }
+
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: rgba(255,255,255,0.4);
+      text-decoration: none;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+      margin-top: 0.5rem;
+    }
+    .btn-back:hover { color: #fff; }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .product-page { grid-template-columns: 1fr; }
+      .product-image-side { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06); padding: 2rem; }
+      .product-info-side { padding: 2rem 1.5rem; }
+      .header-inner { display: flex; justify-content: center; position: relative; padding: 0.75rem 0; }
+      .header-nav { display: none; }
+      .header-actions { position: absolute; right: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="lightning-canvas" aria-hidden="true"></canvas>
+
+<div class="page-wrapper">
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="header-inner">
+      <nav>
+        <ul class="header-nav">
+          <li><a href="preview.html">Shop</a></li>
+          <li><a href="#">Contact</a></li>
+          <li><a href="#">Lookbook</a></li>
+        </ul>
+      </nav>
+      <a href="preview.html" class="header-logo">
+        <img class="logo-icon" src="logo.png" alt="FROI">
+      </a>
+      <div class="header-actions">
+        <a href="#" aria-label="Search">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="7"/><path d="m16.5 16.5 4 4"/>
+          </svg>
+        </a>
+        <a href="#" aria-label="Account">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <circle cx="12" cy="7" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+          </svg>
+        </a>
+        <a href="#" aria-label="Cart">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- PRODUCT PAGE -->
+  <div class="product-page">
+
+    <!-- Imagen -->
+    <div class="product-image-side">
+      <!-- Cuando tengas foto: <img class="product-img" src="hoodie.jpg" alt="Hoodie"> -->
+      <div class="product-img-placeholder">Add photo</div>
+    </div>
+
+    <!-- Info -->
+    <div class="product-info-side">
+      <div class="product-sku">FROI — NYC</div>
+      <h1 class="product-title">Hoodie</h1>
+      <div class="product-price">$— USD</div>
+      <hr class="product-divider">
+      <div>
+        <div class="qty-label">Quantity</div>
+        <div class="qty-wrap">
+          <button class="qty-btn" id="qty-minus">−</button>
+          <div class="qty-num" id="qty-num">1</div>
+          <button class="qty-btn" id="qty-plus">+</button>
+        </div>
+      </div>
+      <button class="btn-add-cart">Add to Cart</button>
+      <a href="preview.html" class="btn-back">← Back to Shop</a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // QUANTITY
+  let qty = 1;
+  const num = document.getElementById('qty-num');
+  document.getElementById('qty-minus').addEventListener('click', () => { if (qty > 1) num.textContent = --qty; });
+  document.getElementById('qty-plus').addEventListener('click',  () => { num.textContent = ++qty; });
+
+  // LIGHTNING
+  (function () {
+    const canvas = document.getElementById('lightning-canvas');
+    const ctx = canvas.getContext('2d');
+    let W, H, bolts = [];
+
+    function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+
+    function mkPath(x1, y1, x2, y2, spread, depth) {
+      if (depth === 0) return [{x:x1,y:y1},{x:x2,y:y2}];
+      const mx = (x1+x2)/2 + (Math.random()-.5)*spread;
+      const my = (y1+y2)/2 + (Math.random()-.5)*spread*.4;
+      return [...mkPath(x1,y1,mx,my,spread*.55,depth-1), ...mkPath(mx,my,x2,y2,spread*.55,depth-1)];
+    }
+
+    class Bolt {
+      constructor(x1,y1,x2,y2,opts={}) {
+        this.pts  = mkPath(x1,y1,x2,y2,opts.spread||120,opts.depth||7);
+        this.life = opts.life||350;
+        this.born = performance.now();
+        this.maxA = opts.alpha||0.7;
+        this.w    = opts.width||1.5;
+        this.kids = [];
+        if (opts.branch!==false) {
+          const n = Math.floor(Math.random()*3)+1;
+          for (let i=0;i<n;i++) {
+            const idx = Math.floor(Math.random()*this.pts.length*.5+this.pts.length*.15);
+            const p = this.pts[idx];
+            if (!p) continue;
+            this.kids.push(new Bolt(p.x,p.y,p.x+(Math.random()-.5)*160,p.y+Math.random()*160,
+              {spread:50,depth:4,alpha:this.maxA*.45,life:this.life*.65,width:this.w*.5,branch:false}));
+          }
+        }
+      }
+      draw(ctx,now) {
+        const t=(now-this.born)/this.life;
+        if(t>=1) return false;
+        const a=t<.08?(t/.08)*this.maxA:this.maxA*(1-(t-.08)/.92);
+        ctx.save();
+        ctx.globalAlpha=a*.25; ctx.strokeStyle='#fff'; ctx.lineWidth=this.w*4;
+        ctx.shadowBlur=30; ctx.shadowColor='rgba(200,220,255,.9)'; ctx.lineCap='round';
+        ctx.beginPath(); this.pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y)); ctx.stroke();
+        ctx.globalAlpha=a; ctx.lineWidth=this.w; ctx.shadowBlur=12;
+        ctx.beginPath(); this.pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y)); ctx.stroke();
+        ctx.restore();
+        this.kids=this.kids.filter(k=>k.draw(ctx,now));
+        return true;
+      }
+    }
+
+    function spawnBg() {
+      const x = Math.random()*W;
+      bolts.push(new Bolt(x,-5,x+(Math.random()-.5)*W*.9,H+5,
+        {spread:500,depth:8,alpha:.15+Math.random()*.15,life:300+Math.random()*200,width:.8+Math.random()}));
+    }
+
+    function schedule() { setTimeout(()=>{ spawnBg(); schedule(); }, 2500+Math.random()*3500); }
+
+    function loop() {
+      const now=performance.now();
+      ctx.clearRect(0,0,W,H);
+      bolts=bolts.filter(b=>b.draw(ctx,now));
+      requestAnimationFrame(loop);
+    }
+
+    window.addEventListener('resize', resize);
+    resize(); loop(); schedule();
+  })();
+</script>
+</body>
+</html>
