@@ -1,0 +1,47 @@
+{%- comment -%}
+  Renders a product card.
+  Accepts: product, lazy_load (bool)
+{%- endcomment -%}
+
+{%- assign first_variant = product.first_available_variant | default: product.variants.first -%}
+{%- assign sold_out = product.available | default: false -%}
+{%- assign on_sale = false -%}
+{%- if product.compare_at_price > product.price -%}
+  {%- assign on_sale = true -%}
+{%- endif -%}
+
+<div class="product-card">
+  <a href="{{ product.url }}" class="product-card__image-wrap" aria-label="{{ product.title | escape }}">
+    {%- if product.featured_image -%}
+      <img
+        src="{{ product.featured_image | image_url: width: 600 }}"
+        alt="{{ product.featured_image.alt | escape | default: product.title }}"
+        width="600"
+        height="600"
+        loading="{% if lazy_load %}lazy{% else %}eager{% endif %}"
+      >
+    {%- else -%}
+      <div style="width:80%;height:80%;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.15);font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;">No image</div>
+    {%- endif -%}
+
+    {%- unless product.available -%}
+      <span class="product-card__badge product-card__badge--soldout">Sold out</span>
+    {%- else -%}
+      {%- if on_sale -%}
+        <span class="product-card__badge product-card__badge--new">Sale</span>
+      {%- endif -%}
+    {%- endunless -%}
+  </a>
+
+  <div class="product-card__info">
+    <a href="{{ product.url }}" class="product-card__title">{{ product.title }}</a>
+    <div class="product-card__price">
+      {%- if on_sale -%}
+        <s>{{ product.compare_at_price | money }}</s>
+        <span class="sale">{{ product.price | money }}</span>
+      {%- else -%}
+        {{ product.price | money }}
+      {%- endif -%}
+    </div>
+  </div>
+</div>
