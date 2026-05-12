@@ -1271,8 +1271,15 @@
     tickPs();
     setInterval(tickPs, 10000);
 
+    // Si ya entró antes, salta la contraseña directo
+    if (sessionStorage.getItem('froi_auth')) {
+      screen.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
     function tryEnter() {
       if (input.value === PASSWORD || input.value.toUpperCase() === PASSWORD) {
+        sessionStorage.setItem('froi_auth', '1');
         window.strikeAndEnter(() => {
           screen.classList.add('hidden');
           document.body.style.overflow = '';
