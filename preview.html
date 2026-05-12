@@ -732,6 +732,199 @@
     }
     .overlay.active { opacity: 1; pointer-events: all; }
 
+    /* ===== PRODUCT MODAL ===== */
+    .product-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 9997;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(30px);
+      transition: opacity 0.4s ease, transform 0.4s ease, visibility 0.4s;
+      overflow-y: auto;
+    }
+
+    .product-modal.open {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .product-modal__header {
+      display: flex;
+      justify-content: flex-end;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      position: sticky;
+      top: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(12px);
+      z-index: 10;
+    }
+
+    .product-modal__close {
+      background: none;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      opacity: 0.6;
+      transition: opacity 0.2s;
+    }
+    .product-modal__close:hover { opacity: 1; }
+
+    .product-modal__body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      flex: 1;
+      min-height: calc(100vh - 60px);
+    }
+
+    .product-modal__image {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem;
+      border-right: 1px solid rgba(255,255,255,0.06);
+      position: relative;
+    }
+
+    .product-modal__image::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, rgba(255,255,255,0.04) 0%, transparent 70%);
+    }
+
+    .product-modal__image img {
+      width: 100%;
+      max-width: 420px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 60px rgba(255,255,255,0.08));
+    }
+
+    .product-modal__image-placeholder {
+      width: 80%;
+      aspect-ratio: 1;
+      border: 1px dashed rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255,255,255,0.15);
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .product-modal__info {
+      padding: 3rem 2.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 1.5rem;
+    }
+
+    .product-modal__sku {
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      color: rgba(255,255,255,0.3);
+      text-transform: uppercase;
+    }
+
+    .product-modal__title {
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      font-weight: 900;
+      letter-spacing: -0.01em;
+      line-height: 1;
+    }
+
+    .product-modal__price {
+      font-size: 1.1rem;
+      color: rgba(255,255,255,0.7);
+      letter-spacing: 0.05em;
+    }
+
+    .product-modal__divider {
+      border: none;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .product-modal__qty-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 0.75rem;
+    }
+
+    .product-modal__qty {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      border: 1px solid rgba(255,255,255,0.2);
+      width: fit-content;
+    }
+
+    .qty-btn {
+      background: none;
+      border: none;
+      color: #fff;
+      width: 44px;
+      height: 44px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .qty-btn:hover { background: rgba(255,255,255,0.08); }
+
+    .qty-num {
+      width: 44px;
+      text-align: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      border-left: 1px solid rgba(255,255,255,0.2);
+      border-right: 1px solid rgba(255,255,255,0.2);
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-add-cart {
+      width: 100%;
+      padding: 1.1rem;
+      background: #fff;
+      color: #000;
+      border: none;
+      font-size: 0.75rem;
+      font-weight: 900;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .btn-add-cart:hover { opacity: 0.85; }
+
+    @media (max-width: 768px) {
+      .product-modal__body { grid-template-columns: 1fr; min-height: auto; }
+      .product-modal__image { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06); padding: 2rem; }
+      .product-modal__info { padding: 2rem 1.5rem; }
+    }
+
     /* ===== RESPONSIVE ===== */
     @media (max-width: 1024px) {
       .product-grid { grid-template-columns: repeat(3, 1fr); }
@@ -970,6 +1163,40 @@
 
 </div>
 
+<!-- Product Modal -->
+<div class="product-modal" id="product-modal">
+  <div class="product-modal__header">
+    <button class="product-modal__close" id="modal-close">
+      &#x2715; &nbsp; Close
+    </button>
+  </div>
+  <div class="product-modal__body">
+    <!-- Imagen -->
+    <div class="product-modal__image">
+      <!-- Cuando tengas la foto del hoodie, reemplaza esto: -->
+      <div class="product-modal__image-placeholder">Add photo</div>
+      <!-- <img src="hoodie.jpg" alt="Hoodie"> -->
+    </div>
+
+    <!-- Info -->
+    <div class="product-modal__info">
+      <div class="product-modal__sku">FROI — NYC</div>
+      <h1 class="product-modal__title">Hoodie</h1>
+      <div class="product-modal__price">$— USD</div>
+      <hr class="product-modal__divider">
+      <div>
+        <div class="product-modal__qty-label">Quantity</div>
+        <div class="product-modal__qty">
+          <button class="qty-btn" id="qty-minus">−</button>
+          <div class="qty-num" id="qty-num">1</div>
+          <button class="qty-btn" id="qty-plus">+</button>
+        </div>
+      </div>
+      <button class="btn-add-cart">Add to Cart</button>
+    </div>
+  </div>
+</div>
+
 <!-- Cart Drawer -->
 <div id="cart-drawer" class="cart-drawer">
   <div class="cart-drawer__header">
@@ -1180,6 +1407,32 @@
     }
     tick();
     setInterval(tick, 60000);
+  })();
+
+  // PRODUCT MODAL
+  (function () {
+    const modal    = document.getElementById('product-modal');
+    const closeBtn = document.getElementById('modal-close');
+    const card     = document.querySelector('.product-card');
+    const minus    = document.getElementById('qty-minus');
+    const plus     = document.getElementById('qty-plus');
+    const num      = document.getElementById('qty-num');
+    let qty = 1;
+
+    card.addEventListener('click', () => {
+      modal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    });
+
+    function close() {
+      modal.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    closeBtn.addEventListener('click', close);
+
+    minus.addEventListener('click', () => { if (qty > 1) num.textContent = --qty; });
+    plus.addEventListener('click',  () => { num.textContent = ++qty; });
   })();
 
   // CART
